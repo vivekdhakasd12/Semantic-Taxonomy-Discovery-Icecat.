@@ -1,4 +1,4 @@
-# Icecat Taxonomy Discovery & Clustering 
+# Semantic Taxonomy Discovery (Icecat) 🧠
 
 **A Thesis-Level Unsupervised Learning Project to recover Product Taxonomies from Raw Text.**
 
@@ -26,8 +26,8 @@ The project uses the **Icecat 1.2GB JSON Dataset**.
 
 1.  **Clone the repository**:
     ```bash
-    git clone https://github.com/vivekdhakasd12/Icecat-Taxonomy-Generator
-    cd Icecat-Taxonomy-Generator
+    git clone https://github.com/vivekdhakasd12/Semantic-Taxonomy-Discovery
+    cd Semantic-Taxonomy-Discovery
     ```
 
 2.  **Install Dependencies**:
