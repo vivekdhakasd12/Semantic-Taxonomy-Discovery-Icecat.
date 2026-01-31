@@ -92,5 +92,10 @@ See `outputs/sankey_BIRCH.html`.
 
 ---
 
+## 🎓 Acknowledgements
+
+**Project Supervisor**: **Dr. Binh Vu**
+*   For guidance on the application of unsupervised learning techniques to e-commerce taxonomies.
+
 **Author**: Devendra Singh Dhakad
-**Supervisor**: Dr. Binh Vu
+*   *Generated as part of the Master's Thesis/Project at [University Name]*
