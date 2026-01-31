@@ -1,8 +1,8 @@
-# Icecat Taxonomy Discovery & Clustering 🛍️
+# Icecat Taxonomy Discovery & Clustering 
 
 **A Thesis-Level Unsupervised Learning Project to recover Product Taxonomies from Raw Text.**
 
-## 📌 One-Minute Summary
+## One-Minute Summary
 We applied advanced clustering algorithms (**BIRCH**, **OPTICS**, **HDBSCAN**) to a 1.2GB E-commerce dataset (Icecat) to automatically discover product hierarchies (e.g., *Laptops*, *Tablets*, *Smartphones*) without using labels.
 
 **Key Scientific Finding**:
@@ -12,7 +12,7 @@ We applied advanced clustering algorithms (**BIRCH**, **OPTICS**, **HDBSCAN**) t
 
 ---
 
-## 📂 Dataset
+## Dataset
 The project uses the **Icecat 1.2GB JSON Dataset**.
 > **Download Link**: [Google Drive Link](https://drive.google.com/file/d/13f8GHcokLVetrKNM6cFmhaMM0fVCG1NJ/view?usp=sharing)
 
@@ -22,7 +22,7 @@ The project uses the **Icecat 1.2GB JSON Dataset**.
 
 ---
 
-## 🛠️ Installation
+## Installation
 
 1.  **Clone the repository**:
     ```bash
@@ -37,7 +37,7 @@ The project uses the **Icecat 1.2GB JSON Dataset**.
 
 ---
 
-## 🚀 Usage
+## Usage
 
 We optimized the entire pipeline into a single, robust CLI script.
 
@@ -56,7 +56,7 @@ python run_analysis.py
 
 ---
 
-## 📊 Results & Visualization
+## Results & Visualization
 
 All outputs are saved to the `outputs/` directory.
 
@@ -84,7 +84,7 @@ See `outputs/sankey_BIRCH.html`.
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 *   `src/`: Modular Python code (Clustering, Evaluation, Visualization, etc.).
 *   `run_analysis.py`: Main entry point.
 *   `outputs/`: Generated reports and image artifacts.
@@ -92,5 +92,5 @@ See `outputs/sankey_BIRCH.html`.
 
 ---
 
-**Author**: Devendra
-**Supervisor**: [Professor Name]
+**Author**: Devendra Singh Dhakad
+**Supervisor**: Dr. Binh Vu
