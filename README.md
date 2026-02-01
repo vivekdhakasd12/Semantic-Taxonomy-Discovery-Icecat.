@@ -1,4 +1,4 @@
-# Semantic Taxonomy Discovery (Icecat) 🧠
+# Semantic Taxonomy Discovery (Icecat)
 
 **A Thesis-Level Unsupervised Learning Project to recover Product Taxonomies from Raw Text.**
 
@@ -6,9 +6,9 @@
 We applied advanced clustering algorithms (**BIRCH**, **OPTICS**, **HDBSCAN**) to a 1.2GB E-commerce dataset (Icecat) to automatically discover product hierarchies (e.g., *Laptops*, *Tablets*, *Smartphones*) without using labels.
 
 **Key Scientific Finding**:
-*   **Our Model (Unsupervised BIRCH)**: Achieved **78.6% Purity**.
-*   **Scientific Control (Supervised Logistic Regression)**: Achieved **86.8% Accuracy**.
-*   **Conclusion**: Our unsupervised approach recovers **~90%** of the theoretical maximum performance, proving that the semantic structure of products is highly discoverable even without labeled training data.
+*   **Our Model (Unsupervised BIRCH)**: Achieved **82.2% Purity**.
+*   **Scientific Control (Supervised Logistic Regression)**: Achieved **88.4% Accuracy**.
+*   **Conclusion**: Our unsupervised approach recovers **~93%** of the theoretical maximum performance, proving that the semantic structure of products is highly discoverable even without labeled training data.
 
 ---
 
@@ -48,15 +48,16 @@ python run_analysis.py
 
 **What happens?**
 1.  **Loads Data**: Efficiently samples 50k rows from the large JSON.
-2.  **Embeds Text**: Uses `Sentence-BERT` (all-MiniLM-L6-v2) to create dense vectors.
-3.  **Reduces Dimensions**: PCA (50 components) for efficiency.
-4.  **Tunes Algorithms**: Runs Grid Search on KMeans, HDBSCAN, OPTICS, and BIRCH.
-5.  **Runs Control**: Trains a Supervised Logistic Regression baseline for comparison.
-6.  **Visualizes**: Generates Panels, Bar Charts, and Sankey Diagrams.
+2.  **Preprocesses Text**: Cleans HTML tags and applies smart imputation for missing fields.
+3.  **Embeds Text**: Uses `Sentence-BERT` (all-MiniLM-L6-v2) to create dense vectors.
+4.  **Reduces Dimensions**: PCA (50 components) for efficiency.
+5.  **Tunes Algorithms**: Runs Grid Search on KMeans, HDBSCAN, OPTICS, and BIRCH.
+6.  **Runs Control**: Trains a Supervised Logistic Regression baseline for comparison.
+7.  **Visualizes**: Generates Panels, Bar Charts, and Sankey Diagrams.
 
 ---
 
-## Results & Visualization
+## Results and Visualization
 
 All outputs are saved to the `outputs/` directory.
 
@@ -71,16 +72,27 @@ See `outputs/clustering_comparison_report.csv`.
 
 | Algorithm | Purity | NMI | ARI | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **Supervised Baseline** | **86.8%** | - | - | **Scientific Upper Bound** |
-| **BIRCH** | **78.6%** | **68.6%** | **21.7%** | **Best Unsupervised Model** |
-| KMeans ($k=100$) | 72.3% | 66.8% | 20.9% | Good baseline |
-| Bisecting KMeans | 69.3% | 64.3% | 22.1% | Good for hierarchy |
-| HDBSCAN | 65.4% | 54.7% | 2.2% | High noise sensitivity |
+| **Supervised Baseline** | **88.4%** | - | - | **Scientific Upper Bound** |
+| **BIRCH** | **82.2%** | **73.9%** | - | **Best Unsupervised Model** |
+| KMeans (k=100) | 75.3% | 70.2% | - | Good baseline |
+| Bisecting KMeans | 72.0% | 67.1% | - | Good for hierarchy |
+| HDBSCAN | 67.0% | 56.3% | - | High noise sensitivity |
 
 ### 3. Error Analysis (Sankey Flow)
 See `outputs/sankey_BIRCH.html`.
 *   Interactive flow diagram showing how "True Categories" map to "Clusters".
 *   Reveals that most errors are semantic ambiguities (e.g., Tablets vs Laptops).
+
+---
+
+## Recent Updates
+
+### Phase 1: Preprocessing Improvements (2026-02-01)
+Added advanced text preprocessing to improve data quality:
+*   **HTML Cleaning**: Removes HTML tags (`<b>`, `<br>`, `<div>`) from product descriptions using BeautifulSoup.
+*   **Smart Imputation**: Fills empty description fields using fallback priority (Description > LongDesc > Title > ProductName > Brand).
+*   **Result**: Reduced rejected rows from ~0.02% to 0.002% (only 1 row dropped out of 50,000).
+*   **Impact**: BIRCH Purity improved from 78.6% to 82.2% (+3.6%).
 
 ---
 
@@ -92,7 +104,7 @@ See `outputs/sankey_BIRCH.html`.
 
 ---
 
-## 🎓 Acknowledgements
+## Acknowledgements
 
 **Project Supervisor**: **Dr. Binh Vu** ([@binhvd](https://github.com/binhvd))
 *   For guidance on the application of unsupervised learning techniques to e-commerce taxonomies.

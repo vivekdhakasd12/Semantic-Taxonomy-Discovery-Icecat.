@@ -10,3 +10,4 @@ tqdm>=4.66.0
 matplotlib>=3.7.0
 seaborn>=0.13.0
 tenacity>=8.2.3
+beautifulsoup4>=4.12.0
