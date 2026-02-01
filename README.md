@@ -3,12 +3,12 @@
 **A Thesis-Level Unsupervised Learning Project to recover Product Taxonomies from Raw Text.**
 
 ## One-Minute Summary
-We applied advanced clustering algorithms (**BIRCH**, **OPTICS**, **HDBSCAN**) to a 1.2GB E-commerce dataset (Icecat) to automatically discover product hierarchies (e.g., *Laptops*, *Tablets*, *Smartphones*) without using labels.
+We applied advanced clustering algorithms (**BIRCH**, **MiniBatchKMeans**) to a 1.2GB E-commerce dataset (Icecat) containing **489,898 products** to automatically discover product hierarchies (e.g., *Laptops*, *Tablets*, *Smartphones*) without using labels.
 
 **Key Scientific Finding**:
-*   **Our Model (Unsupervised BIRCH)**: Achieved **82.2% Purity**.
-*   **Scientific Control (Supervised Logistic Regression)**: Achieved **88.4% Accuracy**.
-*   **Conclusion**: Our unsupervised approach recovers **~93%** of the theoretical maximum performance, proving that the semantic structure of products is highly discoverable even without labeled training data.
+*   **Our Model (Unsupervised BIRCH)**: Achieved **85.1% Purity** on 500k products.
+*   **Scientific Control (Supervised Logistic Regression)**: Achieved **93.9% Accuracy**.
+*   **Conclusion**: Our unsupervised approach recovers **~91%** of the theoretical maximum performance, proving that the semantic structure of products is highly discoverable even without labeled training data.
 
 ---
 
@@ -16,7 +16,7 @@ We applied advanced clustering algorithms (**BIRCH**, **OPTICS**, **HDBSCAN**) t
 The project uses the **Icecat 1.2GB JSON Dataset**.
 > **Download Link**: [Google Drive Link](https://drive.google.com/file/d/13f8GHcokLVetrKNM6cFmhaMM0fVCG1NJ/view?usp=sharing)
 
-*   **Size**: 1.2 GB (Raw), 500k+ products.
+*   **Size**: 1.2 GB (Raw), 489,898 products.
 *   **Input Features**: Title, Brand, Product Description.
 *   **Target**: `Category.Name.Value` (Used only for evaluation/testing, never for training).
 
@@ -26,8 +26,8 @@ The project uses the **Icecat 1.2GB JSON Dataset**.
 
 1.  **Clone the repository**:
     ```bash
-    git clone https://github.com/vivekdhakasd12/Semantic-Taxonomy-Discovery
-    cd Semantic-Taxonomy-Discovery
+    git clone https://github.com/vivekdhakasd12/Semantic-Taxonomy-Discovery-Icecat
+    cd Semantic-Taxonomy-Discovery-Icecat
     ```
 
 2.  **Install Dependencies**:
@@ -47,11 +47,11 @@ python run_analysis.py
 ```
 
 **What happens?**
-1.  **Loads Data**: Efficiently samples 50k rows from the large JSON.
+1.  **Loads Data**: Processes the full 489,898 product dataset.
 2.  **Preprocesses Text**: Cleans HTML tags and applies smart imputation for missing fields.
 3.  **Embeds Text**: Uses `Sentence-BERT` (all-MiniLM-L6-v2) to create dense vectors.
 4.  **Reduces Dimensions**: PCA (50 components) for efficiency.
-5.  **Tunes Algorithms**: Runs Grid Search on KMeans, HDBSCAN, OPTICS, and BIRCH.
+5.  **Tunes Algorithms**: Runs Grid Search on MiniBatchKMeans and BIRCH.
 6.  **Runs Control**: Trains a Supervised Logistic Regression baseline for comparison.
 7.  **Visualizes**: Generates Panels, Bar Charts, and Sankey Diagrams.
 
@@ -65,18 +65,16 @@ All outputs are saved to the `outputs/` directory.
 See `outputs/clustering_comparison_panel.png`.
 *   Shows side-by-side clustering structures.
 *   **BIRCH** produces compact, well-separated clusters similar to Ground Truth.
-*   **OPTICS/HDBSCAN** struggle with density variations in high-dimensional text space.
 
-### 2. Performance Metrics
+### 2. Performance Metrics (Full Dataset: 489,898 Products)
 See `outputs/clustering_comparison_report.csv`.
 
-| Algorithm | Purity | NMI | ARI | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| **Supervised Baseline** | **88.4%** | - | - | **Scientific Upper Bound** |
-| **BIRCH** | **82.2%** | **73.9%** | - | **Best Unsupervised Model** |
-| KMeans (k=100) | 75.3% | 70.2% | - | Good baseline |
-| Bisecting KMeans | 72.0% | 67.1% | - | Good for hierarchy |
-| HDBSCAN | 67.0% | 56.3% | - | High noise sensitivity |
+| Algorithm | Purity | NMI | Notes |
+| :--- | :--- | :--- | :--- |
+| **Supervised Baseline** | **93.9%** | - | **Scientific Upper Bound** |
+| **BIRCH** | **85.1%** | **71.9%** | **Best Unsupervised Model** |
+| MiniBatchKMeans (k=150) | 78.9% | 69.2% | Scalable baseline |
+| Bisecting KMeans | 73.3% | 66.7% | Hierarchical baseline |
 
 ### 3. Error Analysis (Sankey Flow)
 See `outputs/sankey_BIRCH.html`.
@@ -87,12 +85,17 @@ See `outputs/sankey_BIRCH.html`.
 
 ## Recent Updates
 
+### Phase 2: Full-Scale Training (2026-02-01)
+Scaled the pipeline to train on the complete dataset:
+*   **MiniBatchKMeans**: Added scalable clustering algorithm for 500k+ rows.
+*   **Full Dataset**: Removed sampling, now processes all 489,898 products.
+*   **Result**: BIRCH Purity improved from 82.2% to 85.1% (+2.9%).
+*   **Supervised Baseline**: Improved from 88.4% to 93.9% (+5.5%) with more training data.
+
 ### Phase 1: Preprocessing Improvements (2026-02-01)
-Added advanced text preprocessing to improve data quality:
-*   **HTML Cleaning**: Removes HTML tags (`<b>`, `<br>`, `<div>`) from product descriptions using BeautifulSoup.
-*   **Smart Imputation**: Fills empty description fields using fallback priority (Description > LongDesc > Title > ProductName > Brand).
-*   **Result**: Reduced rejected rows from ~0.02% to 0.002% (only 1 row dropped out of 50,000).
-*   **Impact**: BIRCH Purity improved from 78.6% to 82.2% (+3.6%).
+*   **HTML Cleaning**: Removes HTML tags from product descriptions.
+*   **Smart Imputation**: Fills empty fields using fallback priority.
+*   **Data Rejection**: Only 4 rows dropped out of 489,898 (0.0008%).
 
 ---
 
@@ -100,7 +103,6 @@ Added advanced text preprocessing to improve data quality:
 *   `src/`: Modular Python code (Clustering, Evaluation, Visualization, etc.).
 *   `run_analysis.py`: Main entry point.
 *   `outputs/`: Generated reports and image artifacts.
-*   `Icecat_Clustering_Analysis.ipynb`: Notebook version of the pipeline.
 
 ---
 

@@ -1,6 +1,6 @@
 import hdbscan
 import time
-from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering, OPTICS, Birch, BisectingKMeans
+from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering, OPTICS, Birch, BisectingKMeans, MiniBatchKMeans
 import numpy as np
 from . import config
 
@@ -17,6 +17,22 @@ def run_kmeans(embeddings, n_clusters=50, quiet=False):
     if not quiet:
         elapsed = time.time() - start
         print(f"   > KMeans completed in {elapsed:.2f} seconds.")
+    return labels
+
+def run_minibatch_kmeans(embeddings, n_clusters=100, batch_size=1024, quiet=False):
+    """MiniBatchKMeans for large-scale clustering (500k+ rows)."""
+    if not quiet:
+        start = time.time()
+        print(f"\n--- MiniBatchKMeans (k={n_clusters}, batch={batch_size}) ---")
+        print(f"   > Input data shape: {embeddings.shape}")
+        print(f"   > Streaming batches for scalable clustering...")
+    
+    mbk = MiniBatchKMeans(n_clusters=n_clusters, batch_size=batch_size, random_state=config.RANDOM_SEED, n_init=3)
+    labels = mbk.fit_predict(embeddings)
+    
+    if not quiet:
+        elapsed = time.time() - start
+        print(f"   > MiniBatchKMeans completed in {elapsed:.2f} seconds.")
     return labels
 
 def run_dbscan(embeddings, eps=0.5, min_samples=5, quiet=False):

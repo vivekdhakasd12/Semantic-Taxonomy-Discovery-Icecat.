@@ -47,6 +47,8 @@ def tune_hyperparameters(embeddings, algo_name, param_grid, sample_size=10000):
                 labels = clustering.run_dbscan(embeddings, **params, quiet=True)
             elif algo_name == 'KMeans':
                  labels = clustering.run_kmeans(embeddings, **params, quiet=True)
+            elif algo_name == 'MiniBatchKMeans':
+                 labels = clustering.run_minibatch_kmeans(embeddings, **params, quiet=True)
             elif algo_name == 'OPTICS':
                 labels = clustering.run_optics(embeddings, **params, quiet=True)
             elif algo_name == 'BIRCH':

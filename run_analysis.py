@@ -28,9 +28,9 @@ def main():
     
     experiments = [
         {
-            'name': 'KMeans',
-            'algo': 'KMeans',
-            'grid': {'n_clusters': [50, 100]} 
+            'name': 'MiniBatchKMeans',
+            'algo': 'MiniBatchKMeans',
+            'grid': {'n_clusters': [100, 150], 'batch_size': [2048]} 
         },
         {
             'name': 'BisectingKMeans',
@@ -38,19 +38,9 @@ def main():
             'grid': {'n_clusters': [100]}
         },
         {
-            'name': 'HDBSCAN',
-            'algo': 'HDBSCAN',
-            'grid': {'min_cluster_size': [10, 30], 'min_samples': [5]}
-        },
-        {
-            'name': 'OPTICS',
-            'algo': 'OPTICS',
-            'grid': {'min_samples': [30], 'max_eps': [0.5]}
-        },
-        {
             'name': 'BIRCH',
             'algo': 'BIRCH',
-            'grid': {'threshold': [0.5], 'n_clusters': [None]}
+            'grid': {'threshold': [0.3, 0.5], 'n_clusters': [None]}
         }
     ]
     
@@ -65,14 +55,10 @@ def main():
         
         print(f"   > Final run for {algo_name} using {best_params}...")
         
-        if algo_code == 'KMeans':
-            labels = clustering.run_kmeans(embeddings_low, **best_params, quiet=True)
+        if algo_code == 'MiniBatchKMeans':
+            labels = clustering.run_minibatch_kmeans(embeddings_low, **best_params, quiet=True)
         elif algo_code == 'BisectingKMeans':
             labels = clustering.run_bisecting_kmeans(embeddings_low, **best_params, quiet=True)
-        elif algo_code == 'HDBSCAN':
-            labels = clustering.run_hdbscan(embeddings_low, **best_params, quiet=True)
-        elif algo_code == 'OPTICS':
-            labels = clustering.run_optics(embeddings_low, **best_params, quiet=True)
         elif algo_code == 'BIRCH':
             labels = clustering.run_birch(embeddings_low, **best_params, quiet=True)
         else:

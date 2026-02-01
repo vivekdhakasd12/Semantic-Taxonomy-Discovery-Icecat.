@@ -13,4 +13,4 @@ TEXT_COLS = ["Title", "ProductName", "Brand", "Description", "LongDesc"]
 
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 RANDOM_SEED = 42
-MAX_ROWS = 50000  # Cap for testing/speed if needed, set None for full dataset
+MAX_ROWS = None  # None = Full dataset (~500k rows), set to 50000 for quick testing
