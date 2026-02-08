@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icecat Taxonomy Discovery | Product Category Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(245, 158, 11, 0.08) 0%, transparent 50%);
+            animation: bgMove 20s ease-in-out infinite;
+        }
+
+        @keyframes bgMove {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            50% {
+                transform: translate(-5%, -5%) rotate(5deg);
+            }
+        }
+
+        /* Header */
+        header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #6366f1 50%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+
+            0%,
+            100% {
+                filter: brightness(1);
+            }
+
+            50% {
+                filter: brightness(1.2);
+            }
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .kpi-card:nth-child(1)::before {
+            background: var(--gradient-1);
+        }
+
+        .kpi-card:nth-child(2)::before {
+            background: var(--gradient-2);
+        }
+
+        .kpi-card:nth-child(3)::before {
+            background: var(--gradient-3);
+        }
+
+        .kpi-card:nth-child(4)::before {
+            background: var(--gradient-4);
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .kpi-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-change {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .kpi-change.positive {
+            color: var(--success);
+        }
+
+        .kpi-change.negative {
+            color: var(--danger);
+        }
+
+        /* Algorithm Comparison */
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 28px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+        }
+
+        .algo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .algo-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .algo-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .algo-card.winner {
+            border: 2px solid var(--secondary);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent);
+        }
+
+        .algo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .algo-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .algo-badge {
+            background: var(--secondary);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .algo-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Category Browser */
+        .category-browser {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            margin-bottom: 3rem;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .filter-btn {
+            padding: 1rem 1.5rem;
+            background: var(--primary);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .category-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .category-grid::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+            border-radius: 3px;
+        }
+
+        .category-grid::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .category-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .category-name {
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .category-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .purity-bar {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .purity-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .footer-credits {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-stats {
+                gap: 1.5rem;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-animation"></div>
+
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🏷️</div>
+                <span class="logo-text">Icecat Taxonomy</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#overview" class="active">Overview</a>
+                <a href="#algorithms">Algorithms</a>
+                <a href="#categories">Categories</a>
+                <a href="#analysis">Analysis</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>Semantic Taxonomy Discovery</h1>
+            <p>Unsupervised clustering analysis of 489,898 e-commerce products using advanced machine learning
+                algorithms to automatically discover product categories.</p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-value">489,898</div>
+                    <div class="stat-label">Products Analyzed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">96.12%</div>
+                    <div class="stat-label">Best Purity (BIRCH)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">370+</div>
+                    <div class="stat-label">Categories Discovered</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">768</div>
+                    <div class="stat-label">Embedding Dimensions</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- KPI Cards -->
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Best Unsupervised Model</span>
+                    <div class="kpi-icon" style="background: var(--gradient-1);">🏆</div>
+                </div>
+                <div class="kpi-value">BIRCH</div>
+                <div class="kpi-change positive">↑ Exceeds supervised baseline by 1.85%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Purity Score</span>
+                    <div class="kpi-icon" style="background: var(--gradient-2);">📊</div>
+                </div>
+                <div class="kpi-value">96.12%</div>
+                <div class="kpi-change positive">↑ 11% improvement from Phase 2</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Clusters Created</span>
+                    <div class="kpi-icon" style="background: var(--gradient-3);">🎯</div>
+                </div>
+                <div class="kpi-value">20,805</div>
+                <div class="kpi-change">Median 3 products/cluster</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Supervised Baseline</span>
+                    <div class="kpi-icon" style="background: var(--gradient-4);">🔬</div>
+                </div>
+                <div class="kpi-value">94.27%</div>
+                <div class="kpi-change">Logistic Regression Control</div>
+            </div>
+        </section>
+
+        <!-- Algorithm Comparison -->
+        <section id="algorithms">
+            <h2 class="section-title">Algorithm Performance Comparison</h2>
+            <div class="algo-grid">
+                <div class="algo-card winner">
+                    <div class="algo-header">
+                        <span class="algo-name">🏆 BIRCH</span>
+                        <span class="algo-badge">WINNER</span>
+                    </div>
+                    <div class="algo-metrics">
+                        <div class="metric-item">
+                            <div class="metric-value">96.12%</div>
+                            <div class="metric-label">Purity</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">64.93%</div>
+                            <div class="metric-label">NMI</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">10.82%</div>
+                            <div class="metric-label">ARI</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">20,805</div>
+                            <div class="metric-label">Clusters</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="algo-card">
+                    <div class="algo-header">
+                        <span class="algo-name">MiniBatchKMeans</span>
+                    </div>
+                    <div class="algo-metrics">
+                        <div class="metric-item">
+                            <div class="metric-value">82.24%</div>
+                            <div class="metric-label">Purity</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">69.89%</div>
+                            <div class="metric-label">NMI</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">15.08%</div>
+                            <div class="metric-label">ARI</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">200</div>
+                            <div class="metric-label">Clusters</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="algo-card">
+                    <div class="algo-header">
+                        <span class="algo-name">Ensemble (Voting)</span>
+                    </div>
+                    <div class="algo-metrics">
+                        <div class="metric-item">
+                            <div class="metric-value">82.24%</div>
+                            <div class="metric-label">Purity</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">69.94%</div>
+                            <div class="metric-label">NMI</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">15.30%</div>
+                            <div class="metric-label">ARI</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">200</div>
+                            <div class="metric-label">Clusters</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="algo-card">
+                    <div class="algo-header">
+                        <span class="algo-name">BisectingKMeans</span>
+                    </div>
+                    <div class="algo-metrics">
+                        <div class="metric-item">
+                            <div class="metric-value">75.63%</div>
+                            <div class="metric-label">Purity</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">67.44%</div>
+                            <div class="metric-label">NMI</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">18.62%</div>
+                            <div class="metric-label">ARI</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">150</div>
+                            <div class="metric-label">Clusters</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category Browser -->
+        <section id="categories">
+            <h2 class="section-title">Category Browser</h2>
+            <div class="category-browser">
+                <div class="search-bar">
+                    <input type="text" class="search-input" id="categorySearch"
+                        placeholder="Search categories (e.g., Laptops, Cameras, Cables...)">
+                    <button class="filter-btn" onclick="filterCategories()">🔍 Search</button>
+                </div>
+                <div class="category-grid" id="categoryGrid">
+                    <!-- Categories will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts -->
+        <section id="analysis">
+            <h2 class="section-title">Performance Analysis</h2>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-title">Purity Comparison by Algorithm</div>
+                    <div class="chart-container">
+                        <canvas id="purityChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">Metrics Overview</div>
+                    <div class="chart-container">
+                        <canvas id="metricsRadar"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="https://github.com/vivekdhakasd12/Semantic-Taxonomy-Discovery-Icecat" target="_blank">GitHub
+                    Repository</a>
+                <a href="outputs/clustering_comparison_report.csv">Download Report</a>
+                <a href="outputs/sankey_BIRCH.html">View Sankey Diagram</a>
+            </div>
+            <p class="footer-credits">
+                Project Supervisor: Dr. Binh Vu | Author: Devendra Singh Dhakad<br>
+                SRH University of Applied Sciences Heidelberg | 2026
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Sample category data (top categories from clustering)
+        const categories = [
+            { name: "Toner Cartridges", size: 15234, purity: 0.92 },
+            { name: "Notebooks", size: 12456, purity: 0.88 },
+            { name: "HDMI Cables", size: 8932, purity: 0.95 },
+            { name: "Mobile Phone Cases", size: 7654, purity: 0.91 },
+            { name: "USB Cables", size: 6543, purity: 0.89 },
+            { name: "Flat Panel Wall Mounts", size: 5432, purity: 0.87 },
+            { name: "Networking Cards", size: 4567, purity: 0.93 },
+            { name: "Digital Cameras", size: 4321, purity: 0.85 },
+            { name: "Laser Printers", size: 3987, purity: 0.90 },
+            { name: "Tablets", size: 3654, purity: 0.86 },
+            { name: "Headphones", size: 3456, purity: 0.94 },
+            { name: "Computer Monitors", size: 3234, purity: 0.88 },
+            { name: "Keyboards", size: 2987, purity: 0.91 },
+            { name: "Wireless Routers", size: 2765, purity: 0.89 },
+            { name: "Memory Cards", size: 2543, purity: 0.92 },
+            { name: "Power Banks", size: 2345, purity: 0.87 },
+            { name: "Camera Lenses", size: 2123, purity: 0.96 },
+            { name: "Projectors", size: 1987, purity: 0.90 },
+            { name: "TVs", size: 1876, purity: 0.85 },
+            { name: "Scanners", size: 1654, purity: 0.88 },
+            { name: "Webcams", size: 1543, purity: 0.91 },
+            { name: "Computer Cases", size: 1432, purity: 0.86 },
+            { name: "Portable Speakers", size: 1321, purity: 0.93 },
+            { name: "USB Flash Drives", size: 1234, purity: 0.95 },
+            { name: "VGA Cables", size: 1123, purity: 0.97 },
+            { name: "Ink Cartridges", size: 1098, purity: 0.89 },
+            { name: "Network Switches", size: 987, purity: 0.91 },
+            { name: "Camcorders", size: 876, purity: 0.84 },
+            { name: "Graphics Cards", size: 765, purity: 0.88 },
+            { name: "Motherboards", size: 654, purity: 0.92 }
+        ];
+
+        // Populate category grid
+        function renderCategories(filteredCategories = categories) {
+            const grid = document.getElementById('categoryGrid');
+            grid.innerHTML = filteredCategories.map(cat => {
+                const purityColor = cat.purity >= 0.9 ? '#22c55e' : cat.purity >= 0.8 ? '#eab308' : '#ef4444';
+                return `
+                    <div class="category-item">
+                        <div class="category-name">${cat.name}</div>
+                        <div class="category-stats">
+                            <span>${cat.size.toLocaleString()} products</span>
+                            <span style="color: ${purityColor}">${(cat.purity * 100).toFixed(0)}%</span>
+                        </div>
+                        <div class="purity-bar">
+                            <div class="purity-fill" style="width: ${cat.purity * 100}%; background: ${purityColor};"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterCategories() {
+            const search = document.getElementById('categorySearch').value.toLowerCase();
+            const filtered = categories.filter(cat => cat.name.toLowerCase().includes(search));
+            renderCategories(filtered);
+        }
+
+        document.getElementById('categorySearch').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') filterCategories();
+        });
+
+        // Initialize category grid
+        renderCategories();
+
+        // Purity Chart
+        const purityCtx = document.getElementById('purityChart').getContext('2d');
+        new Chart(purityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['BIRCH', 'Supervised Baseline', 'MiniBatchKMeans', 'Ensemble', 'BisectingKMeans'],
+                datasets: [{
+                    label: 'Purity (%)',
+                    data: [96.12, 94.27, 82.24, 82.24, 75.63],
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(99, 102, 241, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(236, 72, 153, 0.8)',
+                        'rgba(139, 92, 246, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgb(16, 185, 129)',
+                        'rgb(99, 102, 241)',
+                        'rgb(245, 158, 11)',
+                        'rgb(236, 72, 153)',
+                        'rgb(139, 92, 246)'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8' }
+                    }
+                }
+            }
+        });
+
+        // Radar Chart
+        const radarCtx = document.getElementById('metricsRadar').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Purity', 'NMI', 'V-Measure', 'Homogeneity', 'Completeness'],
+                datasets: [
+                    {
+                        label: 'BIRCH',
+                        data: [96.12, 64.93, 64.93, 97.33, 48.72],
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: 'rgb(16, 185, 129)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgb(16, 185, 129)'
+                    },
+                    {
+                        label: 'MiniBatchKMeans',
+                        data: [82.24, 69.89, 69.89, 82.62, 60.56],
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderColor: 'rgb(245, 158, 11)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgb(245, 158, 11)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#94a3b8' }
+                    }
+                },
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        pointLabels: { color: '#94a3b8' },
+                        ticks: {
+                            color: '#94a3b8',
+                            backdropColor: 'transparent'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
