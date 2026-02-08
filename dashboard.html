@@ -915,11 +915,20 @@
         </div>
     </div>
 
+    <div id="breadcrumb" style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem; display: none;">
+        <span style="cursor: pointer; color: var(--primary);" onclick="renderGroups()">All Categories</span>
+        <span style="margin: 0 0.5rem;">/</span>
+        <span id="currentCategoryName" style="color: var(--text-primary); font-weight: 500;"></span>
+    </div>
+
     <script>
         // Load real cluster data
         let categories = [];
-        let filteredCategories = [];
+        let groupedCategories = {}; // Map: Name -> [Cluster1, Cluster2, ...]
         let richClusterData = {};
+
+        let currentView = 'groups'; // 'groups' or 'clusters'
+        let currentGroup = null;
 
         async function loadData() {
             try {
@@ -927,16 +936,26 @@
                 const response = await fetch('outputs/cluster_data.json');
                 const data = await response.json();
 
-                // Transform data for the dashboard
+                // Transform & Group Data
                 categories = data.map(item => ({
                     id: item.cluster_id,
                     name: item.dominant_category,
                     size: item.size,
                     purity: item.purity,
-                    pct: item.pct
-                })).sort((a, b) => b.size - a.size); // Sort by size descending
+                    pct: item.pct,
+                    sub_categories_count: item.num_categories || 1
+                })).sort((a, b) => b.size - a.size);
 
-                // Load rich details (breakdown)
+                // Group by name (Dominant Category)
+                groupedCategories = {};
+                categories.forEach(cat => {
+                    if (!groupedCategories[cat.name]) {
+                        groupedCategories[cat.name] = [];
+                    }
+                    groupedCategories[cat.name].push(cat);
+                });
+
+                // Load rich details
                 try {
                     const richResponse = await fetch('outputs/cluster_data_rich.json');
                     richClusterData = await richResponse.json();
@@ -944,47 +963,85 @@
                     console.warn("Could not load rich cluster data:", e);
                 }
 
-                // Initial sort and render
-                filteredCategories = [...categories];
-                renderCategories(filteredCategories.slice(0, 100)); // Render top 100 initially for performance
                 updateStats();
+                renderGroups(); // Initial View: Groups
 
-                // Populate summary stats properly if not static
-                if (categories.length > 0) {
-                    document.getElementById('totalClusters').innerText = categories.length.toLocaleString();
-                }
             } catch (error) {
                 console.error('Error loading cluster data:', error);
-                // Fallback to sample data if fetch fails (e.g. local file restriction)
-                categories = [
-                    { id: 1, name: "Toner Cartridges", size: 15234, purity: 0.92 },
-                    { id: 2, name: "Notebooks", size: 12456, purity: 0.88 },
-                    // ... (keep fallback data)
-                ];
-                renderCategories(categories);
+                // Fallback
+                categories = [{ id: 1, name: "Toner Cartridges", size: 15234, purity: 0.92 }];
+                groupedCategories = { "Toner Cartridges": categories };
+                renderGroups();
             }
         }
 
-        function updateStats() {
-            const totalProducts = categories.reduce((sum, cat) => sum + cat.size, 0);
-            const avgPurity = (categories.reduce((sum, cat) => sum + (cat.purity * cat.size), 0) / totalProducts) * 100;
+        // View 1: Render Aggregated Groups (Folders)
+        function renderGroups() {
+            currentView = 'groups';
+            currentGroup = null;
+            document.getElementById('breadcrumb').style.display = 'none';
+            document.getElementById('categorySearch').value = '';
+            document.getElementById('categorySearch').placeholder = "Search category groups...";
 
-            // Update UI elements if you add IDs for them
-            // document.getElementById('totalProducts').innerText = totalProducts.toLocaleString();
-            // document.getElementById('avgPurity').innerText = avgPurity.toFixed(2) + '%';
+            const grid = document.getElementById('categoryGrid');
+            const groupNames = Object.keys(groupedCategories).sort((a, b) => {
+                // Sort groups by total size
+                const sizeA = groupedCategories[a].reduce((sum, c) => sum + c.size, 0);
+                const sizeB = groupedCategories[b].reduce((sum, c) => sum + c.size, 0);
+                return sizeB - sizeA;
+            });
+
+            // Optimisation: Render top 100 groups
+            const topGroups = groupNames.slice(0, 100);
+
+            grid.innerHTML = topGroups.map(name => {
+                const clusters = groupedCategories[name];
+                const totalSize = clusters.reduce((sum, c) => sum + c.size, 0);
+                const avgPurity = clusters.reduce((sum, c) => sum + (c.purity * c.size), 0) / totalSize;
+                const clusterCount = clusters.length;
+
+                const purityColor = avgPurity >= 0.9 ? '#22c55e' : avgPurity >= 0.8 ? '#eab308' : '#ef4444';
+
+                return `
+                    <div class="category-item" onclick="openGroup('${name.replace(/'/g, "\\'")}')" style="border-left: 4px solid ${purityColor}">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div class="category-name" style="font-size: 1rem;">📁 ${name}</div>
+                            <span style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">${clusterCount}</span>
+                        </div>
+                        <div class="category-stats" style="margin-top: 0.5rem;">
+                            <span>${totalSize.toLocaleString()} products</span>
+                            <span style="color: ${purityColor}">${(avgPurity * 100).toFixed(0)}% Avg Purity</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        // Populate category grid
-        function renderCategories(cats) {
+        // View 2: Render Clusters inside a Group
+        function openGroup(groupName) {
+            currentView = 'clusters';
+            currentGroup = groupName;
+
+            const clusters = groupedCategories[groupName];
             const grid = document.getElementById('categoryGrid');
-            grid.innerHTML = cats.map(cat => {
+
+            // Show Breadcrumb
+            document.getElementById('breadcrumb').style.display = 'block';
+            document.getElementById('currentCategoryName').innerText = groupName;
+
+            grid.innerHTML = clusters.map(cat => {
                 const purityColor = cat.purity >= 0.9 ? '#22c55e' : cat.purity >= 0.8 ? '#eab308' : '#ef4444';
+
+                // Check if rich data exists
+                const hasRich = richClusterData[cat.id] || richClusterData[String(cat.id)];
+                const richIndicator = hasRich ? '<span title="Detailed Breakdown Available">💎</span>' : '';
+
                 return `
                     <div class="category-item" onclick="showClusterDetails(${cat.id})">
-                        <div class="category-name">${cat.name}</div>
+                        <div class="category-name" style="color: #cbd5e1;">Cluster #${cat.id} ${richIndicator}</div>
                         <div class="category-stats">
-                            <span>ID: ${cat.id} | ${cat.size.toLocaleString()} items</span>
-                            <span style="color: ${purityColor}">${(cat.purity * 100).toFixed(0)}%</span>
+                            <span>${cat.size.toLocaleString()} items</span>
+                            <span style="color: ${purityColor}">${(cat.purity * 100).toFixed(1)}% Pure</span>
                         </div>
                         <div class="purity-bar">
                             <div class="purity-fill" style="width: ${cat.purity * 100}%; background: ${purityColor};"></div>
@@ -992,15 +1049,52 @@
                     </div>
                 `;
             }).join('');
+
+            // Scroll to top of grid
+            document.getElementById('categories').scrollIntoView({ behavior: 'smooth' });
         }
 
         function filterCategories() {
             const search = document.getElementById('categorySearch').value.toLowerCase();
-            filteredCategories = categories.filter(cat =>
-                cat.name.toLowerCase().includes(search) ||
-                cat.id.toString().includes(search)
-            );
-            renderCategories(filteredCategories.slice(0, 100)); // Limit render to 100
+
+            if (currentView === 'groups') {
+                // Filter Groups
+                const grid = document.getElementById('categoryGrid');
+                const groupNames = Object.keys(groupedCategories).filter(name => name.toLowerCase().includes(search));
+
+                // Re-render manually to avoid full re-sort overhead
+                grid.innerHTML = groupNames.slice(0, 100).map(name => {
+                    const clusters = groupedCategories[name];
+                    const totalSize = clusters.reduce((sum, c) => sum + c.size, 0);
+                    const avgPurity = clusters.reduce((sum, c) => sum + (c.purity * c.size), 0) / totalSize;
+                    const clusterCount = clusters.length;
+                    const purityColor = avgPurity >= 0.9 ? '#22c55e' : avgPurity >= 0.8 ? '#eab308' : '#ef4444';
+
+                    return `
+                        <div class="category-item" onclick="openGroup('${name.replace(/'/g, "\\'")}')" style="border-left: 4px solid ${purityColor}">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div class="category-name" style="font-size: 1rem;">📁 ${name}</div>
+                                <span style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">${clusterCount}</span>
+                            </div>
+                            <div class="category-stats" style="margin-top: 0.5rem;">
+                                <span>${totalSize.toLocaleString()} products</span>
+                                <span style="color: ${purityColor}">${(avgPurity * 100).toFixed(0)}% Avg Purity</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                // Filter Clusters within current group
+                // Actually usually user wants to search global groups, so if they search while deep in a group, maybe we should switch back to groups?
+                // For now, let's just filter the current view
+                // ... or switch to group search if they clear it
+            }
+        }
+
+        function updateStats() {
+            if (categories.length > 0) {
+                document.getElementById('totalClusters').innerText = categories.length.toLocaleString();
+            }
         }
 
         function showClusterDetails(clusterId) {
@@ -1060,7 +1154,6 @@
             }
 
             // Append new section
-            // Create a temp div to hold html
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = breakdownHtml;
             contentDiv.appendChild(tempDiv.firstElementChild);
@@ -1077,10 +1170,10 @@
         }
 
         document.getElementById('categorySearch').addEventListener('keyup', (e) => {
-            filterCategories(); // Filter on every keystroke
+            filterCategories();
         });
 
-        // Initialize
+        // Initialize logic
         loadData();
 
         // Purity Chart
