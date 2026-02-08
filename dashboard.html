@@ -119,6 +119,7 @@
             font-weight: 700;
             background: linear-gradient(135deg, #fff, #94a3b8);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -159,6 +160,7 @@
             margin-bottom: 1rem;
             background: linear-gradient(135deg, #fff 0%, #6366f1 50%, #10b981 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: shimmer 3s ease-in-out infinite;
         }
@@ -819,6 +821,14 @@
                 </div>
             </div>
         </section>
+        <!-- Sankey Diagram -->
+        <section id="sankey">
+            <h2 class="section-title">Cluster Flow Analysis (Sankey)</h2>
+            <div class="chart-card" style="height: 800px; padding: 0; overflow: hidden;">
+                <iframe src="outputs/sankey_BIRCH.html" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+        </section>
+
     </main>
 
     <footer>
@@ -837,50 +847,59 @@
     </footer>
 
     <script>
-        // Sample category data (top categories from clustering)
-        const categories = [
-            { name: "Toner Cartridges", size: 15234, purity: 0.92 },
-            { name: "Notebooks", size: 12456, purity: 0.88 },
-            { name: "HDMI Cables", size: 8932, purity: 0.95 },
-            { name: "Mobile Phone Cases", size: 7654, purity: 0.91 },
-            { name: "USB Cables", size: 6543, purity: 0.89 },
-            { name: "Flat Panel Wall Mounts", size: 5432, purity: 0.87 },
-            { name: "Networking Cards", size: 4567, purity: 0.93 },
-            { name: "Digital Cameras", size: 4321, purity: 0.85 },
-            { name: "Laser Printers", size: 3987, purity: 0.90 },
-            { name: "Tablets", size: 3654, purity: 0.86 },
-            { name: "Headphones", size: 3456, purity: 0.94 },
-            { name: "Computer Monitors", size: 3234, purity: 0.88 },
-            { name: "Keyboards", size: 2987, purity: 0.91 },
-            { name: "Wireless Routers", size: 2765, purity: 0.89 },
-            { name: "Memory Cards", size: 2543, purity: 0.92 },
-            { name: "Power Banks", size: 2345, purity: 0.87 },
-            { name: "Camera Lenses", size: 2123, purity: 0.96 },
-            { name: "Projectors", size: 1987, purity: 0.90 },
-            { name: "TVs", size: 1876, purity: 0.85 },
-            { name: "Scanners", size: 1654, purity: 0.88 },
-            { name: "Webcams", size: 1543, purity: 0.91 },
-            { name: "Computer Cases", size: 1432, purity: 0.86 },
-            { name: "Portable Speakers", size: 1321, purity: 0.93 },
-            { name: "USB Flash Drives", size: 1234, purity: 0.95 },
-            { name: "VGA Cables", size: 1123, purity: 0.97 },
-            { name: "Ink Cartridges", size: 1098, purity: 0.89 },
-            { name: "Network Switches", size: 987, purity: 0.91 },
-            { name: "Camcorders", size: 876, purity: 0.84 },
-            { name: "Graphics Cards", size: 765, purity: 0.88 },
-            { name: "Motherboards", size: 654, purity: 0.92 }
-        ];
+        // Load real cluster data
+        let categories = [];
+        let filteredCategories = [];
+
+        async function loadData() {
+            try {
+                const response = await fetch('outputs/cluster_data.json');
+                const data = await response.json();
+
+                // Transform data for the dashboard
+                categories = data.map(item => ({
+                    id: item.cluster_id,
+                    name: item.dominant_category,
+                    size: item.size,
+                    purity: item.purity,
+                    pct: item.pct
+                })).sort((a, b) => b.size - a.size); // Sort by size descending
+
+                filteredCategories = categories;
+                renderCategories(filteredCategories.slice(0, 100)); // Render top 100 initially for performance
+                updateStats();
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // Fallback to sample data if fetch fails (e.g. local file restriction)
+                categories = [
+                    { id: 1, name: "Toner Cartridges", size: 15234, purity: 0.92 },
+                    { id: 2, name: "Notebooks", size: 12456, purity: 0.88 },
+                    // ... (keep fallback data)
+                ];
+                renderCategories(categories);
+            }
+        }
+
+        function updateStats() {
+            const totalProducts = categories.reduce((sum, cat) => sum + cat.size, 0);
+            const avgPurity = (categories.reduce((sum, cat) => sum + (cat.purity * cat.size), 0) / totalProducts) * 100;
+
+            // Update UI elements if you add IDs for them
+            // document.getElementById('totalProducts').innerText = totalProducts.toLocaleString();
+            // document.getElementById('avgPurity').innerText = avgPurity.toFixed(2) + '%';
+        }
 
         // Populate category grid
-        function renderCategories(filteredCategories = categories) {
+        function renderCategories(cats) {
             const grid = document.getElementById('categoryGrid');
-            grid.innerHTML = filteredCategories.map(cat => {
+            grid.innerHTML = cats.map(cat => {
                 const purityColor = cat.purity >= 0.9 ? '#22c55e' : cat.purity >= 0.8 ? '#eab308' : '#ef4444';
                 return `
-                    <div class="category-item">
+                    <div class="category-item" onclick="showClusterDetails(${cat.id})">
                         <div class="category-name">${cat.name}</div>
                         <div class="category-stats">
-                            <span>${cat.size.toLocaleString()} products</span>
+                            <span>ID: ${cat.id} | ${cat.size.toLocaleString()} items</span>
                             <span style="color: ${purityColor}">${(cat.purity * 100).toFixed(0)}%</span>
                         </div>
                         <div class="purity-bar">
@@ -893,16 +912,27 @@
 
         function filterCategories() {
             const search = document.getElementById('categorySearch').value.toLowerCase();
-            const filtered = categories.filter(cat => cat.name.toLowerCase().includes(search));
-            renderCategories(filtered);
+            filteredCategories = categories.filter(cat =>
+                cat.name.toLowerCase().includes(search) ||
+                cat.id.toString().includes(search)
+            );
+            renderCategories(filteredCategories.slice(0, 100)); // Limit render to 100
+        }
+
+        function showClusterDetails(clusterId) {
+            const cluster = categories.find(c => c.id === clusterId);
+            if (!cluster) return;
+
+            // Simple alert for now, could be a modal
+            alert(`Cluster Details:\n\nID: ${cluster.id}\nCategory: ${cluster.name}\nSize: ${cluster.size}\nPurity: ${(cluster.purity * 100).toFixed(2)}%\nPercentage of Data: ${(cluster.pct * 100).toFixed(4)}%`);
         }
 
         document.getElementById('categorySearch').addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') filterCategories();
+            filterCategories(); // Filter on every keystroke
         });
 
-        // Initialize category grid
-        renderCategories();
+        // Initialize
+        loadData();
 
         // Purity Chart
         const purityCtx = document.getElementById('purityChart').getContext('2d');
