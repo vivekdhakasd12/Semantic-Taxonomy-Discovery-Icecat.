@@ -997,7 +997,7 @@
         }
 
         function updateStats(cats) {
-            document.getElementById('totalClusters').innerText = cats.length.toLocaleString();
+            document.getElementById('totalClusters').innerText = Object.keys(groupedCategories).length.toLocaleString();
         }
 
         // 🌳 D3.js Tree Rendering Logic
