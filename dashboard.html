@@ -605,6 +605,50 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: var(--text-primary);
+        }
     </style>
 </head>
 
@@ -846,13 +890,40 @@
         </div>
     </footer>
 
+    <!-- Cluster Details Modal -->
+    <div id="clusterModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn"
+                onclick="document.getElementById('clusterModal').style.display='none'">&times;</button>
+            <h2 id="modalTitle" style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-primary);">Cluster
+                Title</h2>
+            <div style="color: var(--text-secondary); margin-bottom: 2rem;">Cluster ID: <span
+                    id="modalClusterId"></span></div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="metric-item">
+                    <div class="metric-value" id="modalSize">0</div>
+                    <div class="metric-label">Products</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value" id="modalPurity">0%</div>
+                    <div class="metric-label">Purity</div>
+                </div>
+            </div>
+
+            <!-- Dynamic content will be appended here -->
+        </div>
+    </div>
+
     <script>
         // Load real cluster data
         let categories = [];
         let filteredCategories = [];
+        let richClusterData = {};
 
         async function loadData() {
             try {
+                // Load basic list
                 const response = await fetch('outputs/cluster_data.json');
                 const data = await response.json();
 
@@ -865,12 +936,25 @@
                     pct: item.pct
                 })).sort((a, b) => b.size - a.size); // Sort by size descending
 
-                filteredCategories = categories;
+                // Load rich details (breakdown)
+                try {
+                    const richResponse = await fetch('outputs/cluster_data_rich.json');
+                    richClusterData = await richResponse.json();
+                } catch (e) {
+                    console.warn("Could not load rich cluster data:", e);
+                }
+
+                // Initial sort and render
+                filteredCategories = [...categories];
                 renderCategories(filteredCategories.slice(0, 100)); // Render top 100 initially for performance
                 updateStats();
 
+                // Populate summary stats properly if not static
+                if (categories.length > 0) {
+                    document.getElementById('totalClusters').innerText = categories.length.toLocaleString();
+                }
             } catch (error) {
-                console.error('Error loading data:', error);
+                console.error('Error loading cluster data:', error);
                 // Fallback to sample data if fetch fails (e.g. local file restriction)
                 categories = [
                     { id: 1, name: "Toner Cartridges", size: 15234, purity: 0.92 },
@@ -920,11 +1004,76 @@
         }
 
         function showClusterDetails(clusterId) {
-            const cluster = categories.find(c => c.id === clusterId);
+            const cluster = categories.find(c => c.id == clusterId);
             if (!cluster) return;
 
-            // Simple alert for now, could be a modal
-            alert(`Cluster Details:\n\nID: ${cluster.id}\nCategory: ${cluster.name}\nSize: ${cluster.size}\nPurity: ${(cluster.purity * 100).toFixed(2)}%\nPercentage of Data: ${(cluster.pct * 100).toFixed(4)}%`);
+            const modal = document.getElementById('clusterModal');
+            document.getElementById('modalTitle').innerText = cluster.name;
+            document.getElementById('modalClusterId').innerText = cluster.id;
+            document.getElementById('modalSize').innerText = cluster.size.toLocaleString();
+            document.getElementById('modalPurity').innerText = (cluster.purity * 100).toFixed(1) + '%';
+
+            // Rich Breakdown
+            const contentDiv = modal.querySelector('.modal-content');
+
+            // Remove any existing breakdown first
+            const existing = contentDiv.querySelector('.breakdown-section');
+            if (existing) existing.remove();
+
+            let breakdownHtml = '';
+
+            // Check both string and int keys just in case
+            const details = richClusterData[clusterId] || richClusterData[String(clusterId)];
+
+            if (details) {
+                const breakdown = details.breakdown || [];
+
+                breakdownHtml = `
+                    <div class="breakdown-section" style="margin-top: 2rem;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: #cbd5e1;">Cluster Composition (Subcategories)</h3>
+                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem;">
+                 `;
+
+                breakdown.forEach(item => {
+                    const width = Math.max(item.percentage, 1);
+                    breakdownHtml += `
+                        <div style="margin-bottom: 0.8rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; font-size: 0.9rem;">
+                                <span>${item.name}</span>
+                                <span style="color: #94a3b8;">${item.count} (${item.percentage}%)</span>
+                            </div>
+                            <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                                <div style="width: ${width}%; height: 100%; background: linear-gradient(90deg, #6366f1, #8b5cf6); border-radius: 3px;"></div>
+                            </div>
+                        </div>
+                     `;
+                });
+
+                breakdownHtml += `</div></div>`;
+            } else {
+                breakdownHtml = `
+                    <div class="breakdown-section" style="margin-top: 2rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px; text-align: center; color: #94a3b8;">
+                        Detailed subcategory breakdown not available for this cluster.<br>
+                        <small>(Only available for top clusters visualized in Sankey)</small>
+                    </div>
+                 `;
+            }
+
+            // Append new section
+            // Create a temp div to hold html
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = breakdownHtml;
+            contentDiv.appendChild(tempDiv.firstElementChild);
+
+            modal.style.display = 'flex';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('clusterModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
         }
 
         document.getElementById('categorySearch').addEventListener('keyup', (e) => {
