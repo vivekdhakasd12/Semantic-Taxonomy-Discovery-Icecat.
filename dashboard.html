@@ -659,7 +659,7 @@
         <div class="header-content">
             <div class="logo">
                 <div class="logo-icon">🏷️</div>
-                <span class="logo-text">Icecat Taxonomy</span>
+                <span class="logo-text">Icecat Taxonomy v2.0 (Hierarchical)</span>
             </div>
             <nav class="nav-links">
                 <a href="#overview" class="active">Overview</a>
@@ -932,8 +932,9 @@
 
         async function loadData() {
             try {
-                // Load basic list
-                const response = await fetch('outputs/cluster_data.json');
+                // Load basic list (force refresh)
+                const cacheBuster = Date.now();
+                const response = await fetch(`outputs/cluster_data.json?t=${cacheBuster}`);
                 const data = await response.json();
 
                 // Transform & Group Data
@@ -957,7 +958,7 @@
 
                 // Load rich details
                 try {
-                    const richResponse = await fetch('outputs/cluster_data_rich.json');
+                    const richResponse = await fetch(`outputs/cluster_data_rich.json?t=${Date.now()}`);
                     richClusterData = await richResponse.json();
                 } catch (e) {
                     console.warn("Could not load rich cluster data:", e);
