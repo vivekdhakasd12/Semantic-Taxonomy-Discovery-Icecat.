@@ -1,0 +1,11 @@
+cluster_id,size,purity,dominant_category,num_categories,sample_1,sample_2
+6384,67,0.14925373134328357,Magnetic Tape Cassettes,26,Sony BC-TR1,Sony CMT-V10iPW
+6196,13,0.15384615384615385,Portable Speakers,9,Sony FDR-AXP33 Black,Sony FDR-AX1 Black
+5548,5,0.2,Mobile Phones,5,"Backshop ErgoMate 61 cm (24"") Silver","ifrogz Fusion 24.6 cm (9.7"") Black,Silver"
+20701,5,0.2,Embedded Computers,5,Intel,Intel
+17287,19,0.21052631578947367,Printer/Scanner Spare Parts,8,Epson Maintenance Unit A (Dev/Toner),Epson EPL-C8000 Waste Toner Collector 20k
+10079,14,0.21428571428571427,Blank DVDs,8,Sony 50CDQ80SPDTP,Sony 50CDQ80PP
+10856,9,0.2222222222222222,Flat Panel Accessories,5,Vogel's PTS CL40 S,Vogel's PPS 350
+15889,9,0.2222222222222222,Software Licenses/Upgrades,6,HP JetAdvantage Private Print,HP BarCode CF Printing Solution
+8809,22,0.22727272727272727,Household Batteries,13,Sony USM8GQX,Sony DVM60PR
+6403,37,0.24324324324324326,Blank Data Tapes,19,Sony SGP-UC2,Sony SL-BG1

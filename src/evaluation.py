@@ -1,5 +1,6 @@
 from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
-from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score, homogeneity_score, completeness_score
+from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
+from sklearn.metrics import homogeneity_score, completeness_score, v_measure_score, fowlkes_mallows_score
 import numpy as np
 import pandas as pd
 from . import config
@@ -10,7 +11,7 @@ def purity_score(y_true, y_pred):
 
 def compute_metrics(embeddings, labels, true_labels=None, sample_size=10000):
     """
-    Computes a dictionary of metrics.
+    Computes a comprehensive dictionary of clustering metrics.
     Sampling used for silhouette score as it's O(N^2).
     """
     metrics = {}
@@ -43,5 +44,10 @@ def compute_metrics(embeddings, labels, true_labels=None, sample_size=10000):
         metrics['purity'] = purity_score(true_labels, labels)
         metrics['ari'] = adjusted_rand_score(true_labels, labels)
         metrics['nmi'] = normalized_mutual_info_score(true_labels, labels)
+        metrics['homogeneity'] = homogeneity_score(true_labels, labels)
+        metrics['completeness'] = completeness_score(true_labels, labels)
+        metrics['v_measure'] = v_measure_score(true_labels, labels)
+        metrics['fowlkes_mallows'] = fowlkes_mallows_score(true_labels, labels)
 
     return metrics
+

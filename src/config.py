@@ -11,6 +11,6 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 LABEL_COL = "Category.Name.Value"  # Corrected based on file inspection
 TEXT_COLS = ["Title", "ProductName", "Brand", "Description", "LongDesc"]
 
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+EMBEDDING_MODEL = "all-mpnet-base-v2"  # Upgraded from all-MiniLM-L6-v2 for higher quality (768 dims)
 RANDOM_SEED = 42
 MAX_ROWS = None  # None = Full dataset (~500k rows), set to 50000 for quick testing
