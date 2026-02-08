@@ -6,6 +6,7 @@ This interactive dashboard visualizes the results of the unsupervised clustering
 
 -   **Real-time Data Exploration**: Browse and search through all 20,805 discovered clusters.
 -   **Cluster Deep Dive**: Click on any category to see detailed statistics including purity, size, and ID.
+-   **Subcategory Breakdown**: View the composition of each cluster (e.g., 90% Laptops, 10% Tablets) to understand impurity sources.
 -   **Interactive Sankey Diagram**: Visualize the flow and mapping between true categories and discovered clusters.
 -   **Algorithm Comparison**: View side-by-side performance metrics for BIRCH, MiniBatchKMeans, and others.
 -   **Responsive Design**: Built with a modern, dark-themed UI that works on all devices.
