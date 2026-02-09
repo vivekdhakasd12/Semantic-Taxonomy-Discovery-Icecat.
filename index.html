@@ -94,12 +94,17 @@
 
             <!-- Search -->
             <div class="relative group">
-                <input type="text" id="searchInput"
+                <input type="text" id="searchInput" autocomplete="off"
                     class="bg-gray-900 border border-gray-600 rounded-full py-2 pl-4 pr-10 text-sm focus:outline-none focus:border-blue-500 w-64 transition-all focus:w-80 placeholder-gray-500"
                     placeholder="Search category or cluster...">
                 <button class="absolute right-3 top-2.5 text-gray-400 group-hover:text-blue-400" onclick="searchTree()">
                     <i class="fas fa-search"></i>
                 </button>
+                <!-- Autocomplete Dropdown -->
+                <ul id="searchSuggestions"
+                    class="absolute top-12 left-0 w-full bg-gray-800 border border-gray-700 rounded-lg shadow-xl hidden max-h-60 overflow-y-auto z-50">
+                    <!-- Items populated by JS -->
+                </ul>
             </div>
 
             <!-- Controls -->
@@ -107,6 +112,10 @@
                 <button onclick="zoomFit()" class="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300"
                     title="Fit to Screen">
                     <i class="fas fa-expand"></i>
+                </button>
+                <button onclick="exportTree()" class="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300"
+                    title="Export as PNG">
+                    <i class="fas fa-download"></i>
                 </button>
                 <button onclick="toggleDetails()" class="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300"
                     title="Toggle Details Panel">

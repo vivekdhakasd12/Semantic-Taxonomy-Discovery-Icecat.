@@ -286,63 +286,100 @@ function updateStats() {
 }
 
 function showDetails(data) {
-    // Open Panel if closed
     if (detailsPanel.classList.contains('translate-x-full')) {
         detailsPanel.classList.remove('translate-x-full');
     }
 
     if (data.type === 'cluster') {
-        const breakdown = data.children; // Assuming simple array of breakdown
-        // Wait, children in 'data' are the breakdown items if loaded
-        // Or if data is from D3 node, data.children might be the node children logic.
-        // We stored breakdown in data.children in processData()
+        const purity = (data.purity * 100).toFixed(1);
+        const color = data.purity > 0.9 ? 'text-green-400' : (data.purity > 0.8 ? 'text-yellow-400' : 'text-red-400');
 
         let html = `
-            <div class="bg-gray-700 p-4 rounded-lg mb-4">
-                <h4 class="text-xl font-bold text-white mb-1">Cluster #${data.id}</h4>
-                <div class="text-sm text-gray-400">Purity: ${(data.purity * 100).toFixed(1)}%</div>
-                <div class="text-sm text-gray-400">Size: ${data.size}</div>
+            <div class="bg-gray-700 p-5 rounded-xl mb-6 shadow-lg border border-gray-600">
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="text-2xl font-bold text-white leading-tight">Cluster #${data.id}</h4>
+                    <span class="${color} font-mono font-bold bg-gray-800 px-2 py-1 rounded text-sm">${purity}%</span>
+                </div>
+                <div class="text-sm text-gray-400 flex items-center">
+                    <i class="fas fa-box-open mr-2"></i> ${data.size.toLocaleString()} products
+                </div>
             </div>
             
-            <h5 class="text-md font-semibold text-gray-300 mb-3 border-b border-gray-600 pb-2">Top Categories in Cluster</h5>
+            <h5 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-700 pb-2">
+                Semantic Composition (Word Cloud)
+            </h5>
         `;
 
-        // If breakdown exists (it was put into children)
         if (data.children && data.children.length > 0) {
-            html += `<div class="space-y-3">`;
-            data.children.forEach(item => {
-                const pct = (item.percentage).toFixed(1);
+            // Word Cloud Container
+            html += `<div class="flex flex-wrap gap-2 content-start">`;
+
+            // Sort by percentage descending for cloud logic
+            const items = [...data.children].sort((a, b) => b.percentage - a.percentage);
+
+            items.forEach(item => {
+                // Calculate size/color
+                // Base size 0.75rem. Max size 1.5rem.
+                // Percentage 0-100.
+                // Log scale might be better? Linear for now.
+                const scale = Math.min(item.percentage / 20, 1.5) + 0.75;
+                const fontSize = `${scale.toFixed(2)}rem`;
+
+                // Opacity based on significance
+                const opacity = Math.max(item.percentage / 40, 0.4);
+                const textColor = item.percentage > 40 ? 'text-blue-300' : 'text-gray-300';
+                const bgClass = item.percentage > 40 ? 'bg-blue-900/50 border-blue-700' : 'bg-gray-700/50 border-gray-600';
+
                 html += `
-                    <div>
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-200">${item.name}</span>
-                            <span class="text-gray-400">${item.count} (${pct}%)</span>
-                        </div>
-                        <div class="h-1.5 bg-gray-700 rounded-full overflow-hidden">
-                            <div class="h-full bg-blue-500" style="width: ${Math.min(item.percentage, 100)}%"></div>
-                        </div>
+                    <div class="${bgClass} border rounded-lg px-3 py-1 flex items-center transition hover:scale-105 cursor-default" title="${item.count} items (${item.percentage.toFixed(1)}%)">
+                        <span class="${textColor} font-medium" style="font-size: 0.85rem;">${item.name}</span>
+                        <span class="ml-2 text-xs text-gray-400 bg-gray-800 px-1 rounded">${item.percentage.toFixed(0)}%</span>
                     </div>
                  `;
             });
             html += `</div>`;
+
+            // Add "Product Samples" placeholder if we had them
+            // html += `<div class="mt-6 text-xs text-gray-500 italic"><i class="fas fa-info-circle mr-1"></i> Based on top subcategories</div>`
+
         } else {
-            html += `<p class="text-gray-500 italic">No breakdown details available.</p>`;
+            html += `<div class="text-center py-8 text-gray-500 italic border-2 border-dashed border-gray-700 rounded-lg">
+                <i class="fas fa-ghost text-2xl mb-2 opacity-50"></i><br>
+                No breakdown details available.
+            </div>`;
         }
 
         detailsContent.innerHTML = html;
 
     } else if (data.type === 'category') {
         detailsContent.innerHTML = `
-            <div class="bg-blue-900 p-4 rounded-lg">
-                <h4 class="text-xl font-bold text-white">${data.name}</h4>
-                <p class="text-sm text-blue-200">Category Group</p>
-                <div class="mt-4 text-white">
-                    Contains ${data.children ? data.children.length : 0} Clusters.
+            <div class="bg-blue-900 border border-blue-700 p-6 rounded-xl shadow-lg relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 text-9xl text-blue-800 opacity-20 transform rotate-12">
+                    <i class="fas fa-folder"></i>
                 </div>
+                <h4 class="text-3xl font-bold text-white mb-2 relative z-10">${data.name}</h4>
+                <div class="flex items-center space-x-4 mt-4 relative z-10">
+                    <div class="bg-blue-800 px-3 py-1 rounded-lg text-sm text-blue-100 font-medium">
+                        <i class="fas fa-layer-group mr-1"></i> Group
+                    </div>
+                    <div class="text-blue-200 text-sm">
+                        ${data.children ? data.children.length : 0} Clusters
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    This is a high-level category group derived from the dominant labels in the clustered data.
+                    Click on the green nodes attached to this group to explore specific product clusters.
+                </p>
             </div>
         `;
     } else {
-        detailsContent.innerHTML = `<p class="text-gray-400">Select a Category or Cluster to view details.</p>`;
+        detailsContent.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-gray-500">
+            <i class="fas fa-mouse-pointer text-4xl mb-4 opacity-30 animate-bounce"></i>
+            <p>Select a node to inspect</p>
+        </div>`;
     }
 }
 
@@ -364,38 +401,148 @@ function zoomFit() {
 }
 
 // Search Logic
+const searchInput = document.getElementById('searchInput');
+const suggestionsBox = document.getElementById('searchSuggestions');
+
+searchInput.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    suggestionsBox.innerHTML = '';
+
+    if (term.length < 2) {
+        suggestionsBox.classList.add('hidden');
+        return;
+    }
+
+    // Search in Categories and Clusters
+    // We can search rootData structure or clusterData array
+    // Searching rootData is better to find Categories
+    const results = [];
+
+    // 1. Search Categories
+    rootData.children.forEach(cat => {
+        if (cat.name.toLowerCase().includes(term)) {
+            results.push({ type: 'Category', name: cat.name, data: cat });
+        }
+        // 2. Search Clusters (limited to top 10 per category to avoid spam)
+        if (cat.children) {
+            const matchingClusters = cat.children.filter(c => c.name.toLowerCase().includes(term) || String(c.id).includes(term));
+            matchingClusters.slice(0, 5).forEach(c => {
+                results.push({ type: 'Cluster', name: c.name, data: c });
+            });
+        }
+    });
+
+    if (results.length > 0) {
+        suggestionsBox.classList.remove('hidden');
+        // Limit to 20 results
+        results.slice(0, 20).forEach(res => {
+            const li = document.createElement('li');
+            li.className = "px-4 py-2 hover:bg-gray-700 cursor-pointer text-sm text-gray-300 flex justify-between";
+            li.innerHTML = `<span>${res.name}</span> <span class="text-xs text-gray-500 uppercase">${res.type}</span>`;
+            li.onclick = () => {
+                selectNode(res.data);
+                suggestionsBox.classList.add('hidden');
+                searchInput.value = res.name;
+            };
+            suggestionsBox.appendChild(li);
+        });
+    } else {
+        suggestionsBox.classList.add('hidden');
+    }
+});
+
+// Hide suggestions on click outside
+document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+        suggestionsBox.classList.add('hidden');
+    }
+});
+
 function searchTree() {
-    const term = document.getElementById('searchInput').value.toLowerCase();
+    // Legacy button handler - just trigger first result if any?
+    const term = searchInput.value.toLowerCase();
     if (!term) return;
 
-    // Find node
-    const root = window.treeRoot;
+    // Same logic as input, select first
+    const root = window.treeRoot; // Use D3 hierarchy to find node
     const match = root.descendants().find(d => d.data.name.toLowerCase().includes(term));
+    if (match) selectNode(match.data);
+}
+
+function selectNode(targetData) {
+    const root = window.treeRoot;
+    // Find d3 node by ID or Name
+    let match = null;
+
+    // If it's a cluster, we have ID
+    if (targetData.type === 'cluster') {
+        match = root.descendants().find(d => d.data.id === targetData.id && d.data.type === 'cluster');
+    } else {
+        match = root.descendants().find(d => d.data.name === targetData.name && d.data.type === 'category');
+    }
 
     if (match) {
         // Expand path to match
         let p = match;
         while (p.parent) {
-            if (p.parent._children) {
-                p.parent.children = p.parent._children;
-                p.parent._children = null;
+            if (p.parent.data.children && !p.parent.children) {
+                // It's collapsed. Expand it.
+                // We need to restore children from stashed _children if available,
+                // or rebuild if we filter. 
+                // In our simple toggle logic:
+                if (p.parent._children) {
+                    p.parent.children = p.parent._children;
+                    p.parent._children = null;
+                }
             }
             p = p.parent;
         }
         window.treeUpdate(match);
 
-        // Center View on Match
-        // Calculate transform to center (x, y)
-        // Note: x is vertical, y is horizontal in our tree
+        // Zoom and Highlight
         const t = d3.zoomIdentity.translate(width / 2 - match.y, height / 2 - match.x).scale(1.5);
         svg.transition().duration(1000).call(zoom.transform, t);
 
-        // Highlight via CSS class
-        d3.selectAll('.node rect').style('stroke', '#fff'); // Reset
-        d3.select(`#node-${match.id}`).style('stroke', '#facc15').style('stroke-width', '4px'); // Yellow highlight
+        d3.selectAll('.node rect').style('stroke', '#fff').style('stroke-width', '1px');
+        d3.select(`#node-${match.id}`).style('stroke', '#facc15').style('stroke-width', '4px'); // Yellow
 
         showDetails(match.data);
-    } else {
-        alert("No match found");
     }
 }
+
+// Export Logic
+window.exportTree = function () {
+    // Select the SVG
+    const svgElement = document.querySelector("#tree-viz svg");
+
+    // Serialize
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgElement);
+
+    // Canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+
+    // Background
+    ctx.fillStyle = '#111827';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Image
+    const img = new Image();
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    img.onload = () => {
+        ctx.drawImage(img, 0, 0);
+
+        const a = document.createElement('a');
+        a.download = 'icecat-taxonomy-tree.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+
+        URL.revokeObjectURL(url);
+    };
+    img.src = url;
+};
