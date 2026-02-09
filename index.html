@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-900 text-white">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icecat Taxonomy Explorer v4.0</title>
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+
+        .node rect {
+            transition: all 0.3s ease;
+        }
+
+        .node:hover rect {
+            stroke: #60a5fa;
+            /* blue-400 */
+            stroke-width: 2px;
+            filter: drop-shadow(0 0 4px rgba(96, 165, 250, 0.5));
+        }
+
+        .link {
+            fill: none;
+            stroke: #374151;
+            /* gray-700 */
+            stroke-width: 1.5px;
+            transition: stroke 0.3s;
+        }
+
+        .link:hover {
+            stroke: #60a5fa;
+            stroke-width: 2px;
+        }
+    </style>
+</head>
+
+<body class="h-full flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header
+        class="bg-gray-800 border-b border-gray-700 h-16 flex items-center px-6 justify-between flex-shrink-0 z-20 shadow-lg">
+        <div class="flex items-center space-x-4">
+            <div class="bg-blue-600 p-2 rounded-lg shadow-lg">
+                <i class="fas fa-network-wired text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-blue-400">Icecat Taxonomy Explorer</h1>
+                <p class="text-xs text-gray-400">v4.0 (Interactive Zoomable Tree)</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-6">
+            <!-- Stats Summary -->
+            <div class="flex space-x-6 text-sm">
+                <div class="flex flex-col items-end">
+                    <span class="text-gray-400 text-xs uppercase font-semibold">Categories</span>
+                    <span class="font-bold text-white" id="stat-categories">Loading...</span>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span class="text-gray-400 text-xs uppercase font-semibold">Clusters</span>
+                    <span class="font-bold text-white" id="stat-clusters">Loading...</span>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span class="text-gray-400 text-xs uppercase font-semibold">Avg Purity</span>
+                    <span class="font-bold text-green-400" id="stat-purity">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="relative group">
+                <input type="text" id="searchInput"
+                    class="bg-gray-900 border border-gray-600 rounded-full py-2 pl-4 pr-10 text-sm focus:outline-none focus:border-blue-500 w-64 transition-all focus:w-80 placeholder-gray-500"
+                    placeholder="Search category or cluster...">
+                <button class="absolute right-3 top-2.5 text-gray-400 group-hover:text-blue-400" onclick="searchTree()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex space-x-2">
+                <button onclick="zoomFit()" class="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300"
+                    title="Fit to Screen">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button onclick="toggleDetails()" class="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300"
+                    title="Toggle Details Panel">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- Sidebar (Filters/Legend) -->
+        <aside class="w-64 bg-gray-800 border-r border-gray-700 flex flex-col z-10 hidden md:flex">
+            <div class="p-4 border-b border-gray-700">
+                <h3 class="text-sm font-semibold text-gray-300 mb-3"><i class="fas fa-filter mr-2"></i>Filters & Legend
+                </h3>
+
+                <div class="space-y-4">
+                    <!-- Purity Threshold -->
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Min Purity Threshold</label>
+                        <input type="range" id="purityFilter" min="0" max="100" value="0"
+                            class="w-full accent-blue-500">
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>0%</span>
+                            <span id="purityLabel">All</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="space-y-2 mt-4">
+                        <div class="flex items-center text-xs text-gray-300">
+                            <span class="w-3 h-3 rounded-sm bg-blue-600 mr-2"></span> Category Group
+                        </div>
+                        <div class="flex items-center text-xs text-gray-300">
+                            <span class="w-3 h-3 rounded-sm bg-green-500 mr-2"></span> Cluster (Internal)
+                        </div>
+                        <div class="flex items-center text-xs text-gray-300">
+                            <span class="w-3 h-3 rounded-sm bg-gray-500 mr-2"></span> Subcategory (Leaf)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini Charts area -->
+            <div class="flex-1 p-4 overflow-y-auto space-y-4">
+                <div class="bg-gray-900 p-3 rounded-lg border border-gray-700">
+                    <h4 class="text-xs font-semibold text-gray-400 mb-2">Purity Distribution</h4>
+                    <canvas id="miniPurityChart" height="100"></canvas>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-gray-700 text-xs text-gray-500 text-center">
+                &copy; 2026 Icecat Taxonomy Project
+            </div>
+        </aside>
+
+        <!-- Visualization Canvas -->
+        <main class="flex-1 relative bg-gray-900 cursor-move" id="viz-container">
+            <div id="tree-viz" class="w-full h-full"></div>
+
+            <!-- Zoom Controls Overlay -->
+            <div class="absolute bottom-6 left-6 flex flex-col space-y-2">
+                <button onclick="zoomIn()"
+                    class="p-2 bg-gray-800 border border-gray-700 rounded shadow hover:bg-gray-700 text-white"><i
+                        class="fas fa-plus"></i></button>
+                <button onclick="zoomOut()"
+                    class="p-2 bg-gray-800 border border-gray-700 rounded shadow hover:bg-gray-700 text-white"><i
+                        class="fas fa-minus"></i></button>
+            </div>
+        </main>
+
+        <!-- Details Panel (Slide-over) -->
+        <aside id="details-panel"
+            class="w-80 bg-gray-800 border-l border-gray-700 transform transition-transform duration-300 translate-x-full absolute right-0 top-0 bottom-0 z-20 flex flex-col shadow-2xl">
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-900">
+                <h3 class="font-bold text-white text-lg"><i class="fas fa-list-ul mr-2 text-blue-500"></i>Details</h3>
+                <button onclick="toggleDetails()" class="text-gray-400 hover:text-white"><i
+                        class="fas fa-times"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-6" id="details-content">
+                <div class="text-center text-gray-500 py-10">
+                    <i class="fas fa-mouse-pointer text-3xl mb-3 opacity-50"></i>
+                    <p>Select a node to view details</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
