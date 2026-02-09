@@ -82,16 +82,22 @@ function processData() {
         groupedData[c.dominant_category].push(c);
     });
 
-    // Build Hierarchy
-    // Limit to top 50 categories for performance initially, or lazy load?
-    // Let's take all categories but collapse them.
+    // Build initial tree
+    buildTreeData(0);
+}
+
+function buildTreeData(minPurity = 0) {
     const categories = Object.keys(groupedData).sort();
 
     rootData = {
         name: "Icecat Taxonomy",
         type: "root",
         children: categories.map(catName => {
-            const clusters = groupedData[catName];
+            // Filter clusters by purity
+            const clusters = groupedData[catName].filter(c => c.purity >= minPurity);
+
+            if (clusters.length === 0) return null;
+
             return {
                 name: catName,
                 type: "category",
@@ -111,9 +117,22 @@ function processData() {
                     }))
                 }))
             };
-        })
+        }).filter(cat => cat !== null) // Remove empty categories
     };
 }
+
+// Global Filter Function
+window.filterTree = function (percentage) {
+    const threshold = percentage / 100;
+    buildTreeData(threshold);
+    renderTree(rootData);
+
+    // Update stats based on filtered view
+    // We need to count visible clusters
+    const visibleClusters = rootData.children.reduce((sum, cat) => sum + (cat.children ? cat.children.length : 0), 0);
+    document.getElementById('stat-categories').innerText = rootData.children.length.toLocaleString();
+    document.getElementById('stat-clusters').innerText = visibleClusters.toLocaleString();
+};
 
 function renderTree(data) {
     const root = d3.hierarchy(data);

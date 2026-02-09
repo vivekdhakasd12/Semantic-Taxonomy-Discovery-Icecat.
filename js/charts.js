@@ -37,8 +37,11 @@ function initCharts(data) {
     document.getElementById('purityFilter').addEventListener('input', (e) => {
         const val = e.target.value;
         document.getElementById('purityLabel').innerText = val + '%';
-        // Filter tree?
-        // This requires re-rendering tree filtering nodes > val
-        // Complex for now, treating as visual only or future feature
+
+        // Debounce or just call? Tree render is fast enough for <500 nodes, but maybe laggy for 20k.
+        // Let's rely on D3 efficiency.
+        if (window.filterTree) {
+            window.filterTree(val);
+        }
     });
 }
