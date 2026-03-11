@@ -8,28 +8,28 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <meta name="description" content="Interactive hacker-themed visualization of the Icecat product taxonomy clustering results.">
 
-  <!-- Fonts -->
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Font Awesome -->
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Hacker Theme -->
+  
   <link rel="stylesheet" href="css/hacker.css">
 
-  <!-- Libraries -->
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 
 <body>
 
-  <!-- Scanline Overlay -->
+  
   <div class="scanline-overlay"></div>
 
-  <!-- ── Boot Overlay ─────────────────────────────────────── -->
+  
   <div id="boot-overlay">
     <pre style="color: var(--green); font-size: 11px; margin-bottom: 28px; text-shadow: var(--glow-green);">
   ██╗ ██████╗███████╗ ██████╗ █████╗ ████████╗
@@ -42,7 +42,7 @@
     <div id="boot-lines"></div>
     <div style="margin-top: 6px; color: var(--green);">&gt; <span id="boot-cursor">█</span></div>
 
-    <!-- Launch button — hidden until boot finishes -->
+    
     <div id="boot-launch-wrap" style="margin-top:36px; display:none; flex-direction:column; align-items:center; gap:14px;">
       <div style="font-size:10px; color:var(--green-dim); letter-spacing:4px;">// SYSTEM READY</div>
       <button id="boot-launch-btn" onclick="launchApp()"
@@ -69,13 +69,13 @@
     </div>
   </div>
 
-  <!-- ── App Shell ─────────────────────────────────────────── -->
+  
   <div id="app-shell">
 
-    <!-- ── Header ──────────────────────────────────────────── -->
+    
     <header id="app-header">
 
-      <!-- Logo -->
+      
       <div class="logo-block">
         <div class="logo-badge">[//]</div>
         <div>
@@ -84,7 +84,7 @@
         </div>
       </div>
 
-      <!-- Stats -->
+      
       <div class="header-stats">
         <div class="stat-item">
           <span class="stat-label">Categories</span>
@@ -102,17 +102,17 @@
         </div>
       </div>
 
-      <!-- Controls -->
+      
       <div class="header-controls">
 
-        <!-- Search -->
+        
         <div class="search-wrap">
           <input type="text" id="searchInput" autocomplete="off" placeholder="> search cluster / category...">
           <span class="search-icon" onclick="searchTree()"><i class="fas fa-search"></i></span>
           <ul id="searchSuggestions"></ul>
         </div>
 
-        <!-- Buttons -->
+        
         <button class="hbtn" onclick="zoomFit()" title="Fit to Screen">
           <i class="fas fa-expand"></i><span>FIT</span>
         </button>
@@ -125,10 +125,10 @@
       </div>
     </header>
 
-    <!-- ── Main Workspace ─────────────────────────────────── -->
+    
     <div id="workspace">
 
-      <!-- ── Sidebar ────────────────────────────────────────── -->
+      
       <aside id="sidebar">
         <div class="sidebar-header">
           <span>//</span> CONTROLS &amp; LEGEND
@@ -136,7 +136,7 @@
 
         <div class="sidebar-body">
 
-          <!-- Category Mode Toggle -->
+          
           <div class="ctrl-section">
             <div class="ctrl-label">Category View</div>
             <div class="toggle-group">
@@ -149,7 +149,7 @@
             </div>
           </div>
 
-          <!-- Tree Controls -->
+          
           <div class="ctrl-section">
             <div class="ctrl-label">Tree Controls</div>
             <div class="toggle-group">
@@ -164,7 +164,7 @@
 
           <hr class="sidebar-divider">
 
-          <!-- Purity Filter -->
+          
           <div class="ctrl-section">
             <div class="ctrl-label">Min Purity</div>
             <div class="purity-row">
@@ -176,7 +176,7 @@
 
           <hr class="sidebar-divider">
 
-          <!-- Legend -->
+          
           <div class="ctrl-section">
             <div class="ctrl-label">Legend</div>
             <div class="legend-list">
@@ -191,7 +191,7 @@
 
           <hr class="sidebar-divider">
 
-          <!-- Mini Charts -->
+          
           <div class="ctrl-section">
             <div class="chart-card">
               <div class="chart-card-title">// Purity Distribution</div>
@@ -208,21 +208,21 @@
         <div class="sidebar-footer">// ICECAT TAXONOMY PROJECT &nbsp;·&nbsp; 2026</div>
       </aside>
 
-      <!-- ── Visualization Canvas ──────────────────────────── -->
+      
       <main id="viz-container">
         <div id="tree-viz"></div>
 
-        <!-- Zoom Controls -->
+        
         <div id="zoom-controls">
           <button class="hbtn" onclick="zoomIn()"><i class="fas fa-plus"></i></button>
           <button class="hbtn" onclick="zoomOut()"><i class="fas fa-minus"></i></button>
         </div>
 
-        <!-- Zoom level indicator -->
+        
         <div id="zoom-indicator">ZOOM: 100%</div>
       </main>
 
-      <!-- ── Details Panel ─────────────────────────────────── -->
+      
       <aside id="details-panel">
         <div class="details-header">
           <span class="details-title"><span>//</span> CLUSTER ANALYSIS</span>
@@ -236,10 +236,10 @@
         </div>
       </aside>
 
-    </div><!-- /#workspace -->
-  </div><!-- /#app-shell -->
+    </div>
+  </div>
 
-  <!-- Scripts -->
+  
   <script src="js/charts.js"></script>
   <script src="js/app.js"></script>
 </body>

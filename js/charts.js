@@ -1,16 +1,9 @@
-// ============================================================
-// ICECAT TAXONOMY EXPLORER — HACKER CHARTS
-// Chart.js: Purity Distribution + Top Categories
-// ============================================================
-
 function initCharts(data, groupedData) {
-  // ── Chart 1: Purity Distribution Histogram ────────────────
   const bins = new Array(10).fill(0);
   data.forEach(d => {
     const idx = Math.min(Math.floor(d.purity * 10), 9);
     bins[idx]++;
   });
-
   const purityCtx = document.getElementById('miniPurityChart').getContext('2d');
   new Chart(purityCtx, {
     type: 'bar',
@@ -74,8 +67,6 @@ function initCharts(data, groupedData) {
       }
     }
   });
-
-  // ── Chart 2: Top 5 Categories by Product Count ────────────
   const catTotals = Object.entries(groupedData)
     .map(([name, clusters]) => ({
       name: name.length > 18 ? name.slice(0, 16) + '…' : name,
@@ -83,7 +74,6 @@ function initCharts(data, groupedData) {
     }))
     .sort((a, b) => b.total - a.total)
     .slice(0, 5);
-
   const topCatCtx = document.getElementById('miniTopCatChart').getContext('2d');
   new Chart(topCatCtx, {
     type: 'bar',
@@ -137,11 +127,8 @@ function initCharts(data, groupedData) {
       }
     }
   });
-
-  // ── Purity Slider ─────────────────────────────────────────
   const slider = document.getElementById('purityFilter');
   const label  = document.getElementById('purityLabel');
-
   slider.addEventListener('input', (e) => {
     const val = parseInt(e.target.value);
     label.textContent = val + '%';

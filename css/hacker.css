@@ -1,11 +1,4 @@
-/* ============================================================
-   ICECAT TAXONOMY EXPLORER — HACKER THEME
-   Design System: Cyberpunk / Terminal Green
-   ============================================================ */
-
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
-
-/* ── CSS Custom Properties ─────────────────────────────────── */
 :root {
   --bg-base:        #020c06;
   --bg-panel:       #030f07;
@@ -13,7 +6,6 @@
   --bg-hover:       #0a2a12;
   --border:         #0d3d1a;
   --border-bright:  #1a5c2a;
-
   --green:          #00ff41;
   --green-dim:      #00b32d;
   --green-dark:     #003d10;
@@ -22,25 +14,19 @@
   --amber:          #f5a623;
   --red:            #ff2a6d;
   --red-dim:        #cc1a50;
-
   --text-primary:   #c8ffda;
   --text-secondary: #5a9e6f;
   --text-dim:       #2a5c3a;
   --text-bright:    #00ff41;
-
   --glow-green:     0 0 8px rgba(0, 255, 65, 0.6), 0 0 20px rgba(0, 255, 65, 0.2);
   --glow-cyan:      0 0 8px rgba(0, 212, 255, 0.6), 0 0 20px rgba(0, 212, 255, 0.2);
   --glow-red:       0 0 8px rgba(255, 42, 109, 0.6), 0 0 20px rgba(255, 42, 109, 0.2);
   --glow-amber:     0 0 8px rgba(245, 166, 35, 0.5), 0 0 20px rgba(245, 166, 35, 0.15);
-
   --font-mono:      'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
   --radius:         4px;
   --transition:     150ms ease;
 }
-
-/* ── Reset & Base ──────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html, body {
   height: 100%;
   font-family: var(--font-mono);
@@ -48,14 +34,10 @@ html, body {
   color: var(--text-primary);
   overflow: hidden;
 }
-
-/* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb { background: var(--green-dark); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--green-dim); box-shadow: var(--glow-green); }
-
-/* ── Scanline Overlay ──────────────────────────────────────── */
 .scanline-overlay {
   position: fixed;
   inset: 0;
@@ -74,8 +56,6 @@ html, body {
   0%   { background-position: 0 0; }
   100% { background-position: 0 20px; }
 }
-
-/* Noise texture on body */
 body::before {
   content: '';
   position: fixed;
@@ -85,8 +65,6 @@ body::before {
   z-index: 0;
   opacity: 0.4;
 }
-
-/* ── Layout Shell ──────────────────────────────────────────── */
 #app-shell {
   display: flex;
   flex-direction: column;
@@ -94,8 +72,6 @@ body::before {
   position: relative;
   z-index: 1;
 }
-
-/* ── Header ────────────────────────────────────────────────── */
 #app-header {
   height: 58px;
   background: rgba(3, 15, 7, 0.95);
@@ -109,8 +85,6 @@ body::before {
   overflow: hidden;
   box-shadow: 0 2px 20px rgba(0, 255, 65, 0.05);
 }
-
-/* Animated scan line moving across header */
 #app-header::after {
   content: '';
   position: absolute;
@@ -122,8 +96,6 @@ body::before {
   0%, 100% { transform: translateX(-100%); }
   50% { transform: translateX(100%); }
 }
-
-/* Logo Block */
 .logo-block {
   display: flex;
   align-items: center;
@@ -163,8 +135,6 @@ body::before {
   letter-spacing: 2px;
   text-transform: uppercase;
 }
-
-/* Glitch title animation */
 .glitch {
   position: relative;
   animation: glitchAnim 6s ease-in-out infinite;
@@ -183,8 +153,6 @@ body::before {
   96% { transform: translateX(-1px) skewX(2deg); }
   97% { transform: none; opacity: 1; }
 }
-
-/* Header Stats */
 .header-stats {
   display: flex;
   align-items: center;
@@ -216,15 +184,11 @@ body::before {
   background: var(--border-bright);
   opacity: 0.5;
 }
-
-/* Header Controls */
 .header-controls {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
-/* Search Input */
 .search-wrap {
   position: relative;
 }
@@ -257,8 +221,6 @@ body::before {
   transition: color var(--transition);
 }
 .search-icon:hover { color: var(--green); text-shadow: var(--glow-green); }
-
-/* Autocomplete Dropdown */
 #searchSuggestions {
   position: absolute;
   top: calc(100% + 6px);
@@ -293,8 +255,6 @@ body::before {
   letter-spacing: 2px;
   text-transform: uppercase;
 }
-
-/* Hacker Buttons */
 .hbtn {
   background: var(--bg-card);
   border: 1px solid var(--border-bright);
@@ -324,16 +284,12 @@ body::before {
 }
 .hbtn.cyan:hover { border-color: var(--cyan-dim); color: var(--cyan); box-shadow: var(--glow-cyan); }
 .hbtn i { font-size: 12px; }
-
-/* ── Main Workspace ────────────────────────────────────────── */
 #workspace {
   display: flex;
   flex: 1;
   overflow: hidden;
   position: relative;
 }
-
-/* ── Sidebar ───────────────────────────────────────────────── */
 #sidebar {
   width: 240px;
   background: var(--bg-panel);
@@ -343,7 +299,6 @@ body::before {
   flex-shrink: 0;
   z-index: 10;
 }
-
 .sidebar-header {
   padding: 12px 16px;
   border-bottom: 1px solid var(--border);
@@ -353,7 +308,6 @@ body::before {
   text-transform: uppercase;
 }
 .sidebar-header span { color: var(--green); }
-
 .sidebar-body {
   flex: 1;
   overflow-y: auto;
@@ -362,8 +316,6 @@ body::before {
   flex-direction: column;
   gap: 20px;
 }
-
-/* Control Section */
 .ctrl-section { display: flex; flex-direction: column; gap: 8px; }
 .ctrl-label {
   font-size: 9px;
@@ -372,8 +324,6 @@ body::before {
   text-transform: uppercase;
   margin-bottom: 2px;
 }
-
-/* Toggle group */
 .toggle-group {
   display: flex;
   gap: 6px;
@@ -384,8 +334,6 @@ body::before {
   font-size: 10px;
   padding: 5px 8px;
 }
-
-/* Purity Slider */
 .purity-row {
   display: flex;
   justify-content: space-between;
@@ -419,14 +367,10 @@ body::before {
   transition: transform var(--transition);
 }
 #purityFilter::-webkit-slider-thumb:hover { transform: scale(1.3); }
-
-/* Horizontal rule */
 .sidebar-divider {
   border: none;
   border-top: 1px solid var(--border);
 }
-
-/* Legend */
 .legend-list { display: flex; flex-direction: column; gap: 7px; }
 .legend-item {
   display: flex;
@@ -448,8 +392,6 @@ body::before {
 .legend-dot.mid   { background: var(--amber); box-shadow: var(--glow-amber); }
 .legend-dot.lo    { background: var(--red); box-shadow: var(--glow-red); }
 .legend-dot.leaf  { background: #1a3d20; border: 1px solid var(--border-bright); }
-
-/* Mini Charts */
 .chart-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -463,8 +405,6 @@ body::before {
   text-transform: uppercase;
   margin-bottom: 8px;
 }
-
-/* Sidebar Footer */
 .sidebar-footer {
   padding: 10px 16px;
   border-top: 1px solid var(--border);
@@ -473,8 +413,6 @@ body::before {
   letter-spacing: 1px;
   text-align: center;
 }
-
-/* ── Visualization Canvas ──────────────────────────────────── */
 #viz-container {
   flex: 1;
   position: relative;
@@ -484,8 +422,6 @@ body::before {
 }
 #viz-container:active { cursor: grabbing; }
 #tree-viz { width: 100%; height: 100%; }
-
-/* Grid background (subtle) */
 #viz-container::before {
   content: '';
   position: absolute;
@@ -497,8 +433,6 @@ body::before {
   opacity: 0.35;
   pointer-events: none;
 }
-
-/* Zoom Controls */
 #zoom-controls {
   position: absolute;
   bottom: 20px;
@@ -508,8 +442,6 @@ body::before {
   gap: 4px;
   z-index: 50;
 }
-
-/* Zoom indicator */
 #zoom-indicator {
   position: absolute;
   bottom: 20px;
@@ -520,20 +452,14 @@ body::before {
   z-index: 50;
   transition: color var(--transition);
 }
-
-/* D3 Node Styles */
-/* Root node pulse animation (used by D3-injected SVG rect style) */
 @keyframes rootPulse {
   0%, 100% { opacity: 0.6; filter: drop-shadow(0 0 8px #00d4ff); }
   50%       { opacity: 1;   filter: drop-shadow(0 0 20px #00d4ff); }
 }
-
-/* Launch button blink animation */
 @keyframes launchBlink {
   0%, 100% { box-shadow: 0 0 18px rgba(0,255,65,0.3), inset 0 0 18px rgba(0,255,65,0.05); border-color: var(--green); }
   50%       { box-shadow: 0 0 40px rgba(0,255,65,0.7), inset 0 0 30px rgba(0,255,65,0.15); border-color: #7fff7f; }
 }
-
 .node rect {
   transition: filter 0.25s ease, stroke 0.25s ease;
 }
@@ -551,8 +477,6 @@ body::before {
   transition: stroke 0.25s;
 }
 .link:hover { stroke: var(--green-dim); }
-
-/* ── Details Panel ─────────────────────────────────────────── */
 #details-panel {
   width: 320px;
   background: var(--bg-panel);
@@ -569,7 +493,6 @@ body::before {
   box-shadow: -8px 0 40px rgba(0, 0, 0, 0.6);
 }
 #details-panel.open { transform: translateX(0); }
-
 .details-header {
   padding: 14px 16px;
   border-bottom: 1px solid var(--border);
@@ -597,14 +520,11 @@ body::before {
   font-family: var(--font-mono);
 }
 .details-close:hover { color: var(--red); text-shadow: var(--glow-red); }
-
 #details-content {
   flex: 1;
   overflow-y: auto;
   padding: 16px;
 }
-
-/* Details cards */
 .d-card {
   background: var(--bg-card);
   border: 1px solid var(--border-bright);
@@ -638,7 +558,6 @@ body::before {
 .d-purity-badge.hi  { color: var(--green); border: 1px solid var(--green-dim); background: var(--green-dark); text-shadow: var(--glow-green); }
 .d-purity-badge.mid { color: var(--amber); border: 1px solid var(--amber); background: rgba(245,166,35,0.1); }
 .d-purity-badge.lo  { color: var(--red); border: 1px solid var(--red-dim); background: rgba(255,42,109,0.1); }
-
 .d-section-label {
   font-size: 9px;
   color: var(--text-dim);
@@ -648,8 +567,6 @@ body::before {
   padding-bottom: 6px;
   border-bottom: 1px solid var(--border);
 }
-
-/* Word cloud / tag cloud */
 .word-cloud {
   display: flex;
   flex-wrap: wrap;
@@ -684,8 +601,6 @@ body::before {
   padding: 1px 4px;
   border-radius: 2px;
 }
-
-/* Empty state */
 .details-empty {
   display: flex;
   flex-direction: column;
@@ -701,8 +616,6 @@ body::before {
   0%, 100% { text-shadow: none; opacity: 0.3; }
   50% { text-shadow: 0 0 20px var(--green); opacity: 0.6; }
 }
-
-/* ── Boot Overlay ──────────────────────────────────────────── */
 #boot-overlay {
   position: fixed;
   inset: 0;
@@ -727,8 +640,6 @@ body::before {
 .boot-line.warn { color: var(--amber); }
 #boot-cursor { display: inline-block; animation: blink 0.8s step-end infinite; }
 @keyframes bootFadeIn { to { opacity: 1; } }
-
-/* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 768px) {
   #sidebar { display: none; }
   #details-panel { width: 100%; }
