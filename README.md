@@ -4,7 +4,7 @@
 
 ![Icecat Taxonomy Explorer - Hacker Dashboard](assets/hacker_dashboard.png)
 
-> **Demo Video**: [Watch the full interactive frontend walkthrough here (WebP format)](assets/demo_video.webp)
+> **Demo Video**: [Watch the full end-to-end project walkthrough here (WebP format)](assets/full_project_demo.webp)
 
 ## One-Minute Summary
 We applied advanced clustering algorithms (**BIRCH**, **MiniBatchKMeans**, **Ensemble**) to a 1.2GB E-commerce dataset (Icecat) containing **489,898 products** to automatically discover product hierarchies (e.g., *Laptops*, *Tablets*, *Smartphones*) without using labels.
