@@ -2,6 +2,8 @@
 
 **A Thesis-Level Unsupervised Learning Project to recover Product Taxonomies from Raw Text.**
 
+![Icecat Taxonomy Explorer - Hacker Dashboard](assets/hacker_dashboard.png)
+
 ## One-Minute Summary
 We applied advanced clustering algorithms (**BIRCH**, **MiniBatchKMeans**, **Ensemble**) to a 1.2GB E-commerce dataset (Icecat) containing **489,898 products** to automatically discover product hierarchies (e.g., *Laptops*, *Tablets*, *Smartphones*) without using labels.
 
