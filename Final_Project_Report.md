@@ -90,7 +90,7 @@ To make the clustering results accessible and fully interrogable, we developed t
 
 **Interactive Demo**: 
 A complete end-to-end video walkthrough of the backend codebase and the interactive frontend application is available in the repository.
-> **[Watch the Full Project Demo Video (WebP)](assets/full_project_demo.webp)**
+> **[Watch the Full Project Demo Video (WebP)](https://github.com/vivekdhakasd12/Icecat-Taxonomy-Generator/blob/main/assets/full_project_demo.webp)**
 
 ---
 
